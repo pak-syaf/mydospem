@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#064E3B" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Dospemku AI — Asisten Bimbingan & Sitasi Valid</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #E5E7EB;
+      margin: 0;
+      padding: 0;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .recording-pulse {
+      animation: pulse-ring 1.5s infinite;
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen">
+
+  <!-- CONTAINER UTAMA (RESPONSIF MOBILE APP SHELL) -->
+  <div class="w-full max-w-md h-screen sm:h-[92vh] sm:rounded-3xl bg-gray-100 shadow-2xl flex flex-col overflow-hidden border border-gray-300 relative">
+
+    <!-- HEADER EMERALD & GOLD -->
+    <header class="bg-[#064E3B] text-white px-4 pt-4 pb-3 rounded-b-2xl shadow-md z-10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-[#047857] border border-yellow-300 flex items-center justify-center shadow-inner">
+            <i class="fa-solid fa-graduation-cap text-yellow-300 text-lg"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="font-bold text-base tracking-tight">Dospemku AI</h1>
+              <span id="engineBadge" class="text-[10px] bg-emerald-800 text-emerald-200 px-1.5 py-0.5 rounded font-semibold border border-emerald-600">Live OpenAlex</span>
+            </div>
+            <p class="text-[11px] text-emerald-200">Dosen Pembimbing & Sitasi DOI Valid</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <!-- Selector Jenjang S1 / S2 / S3 -->
+          <div class="flex bg-[#022C22] p-0.5 rounded-lg border border-emerald-800">
+            <button onclick="setLevel('S1')" id="lvl-S1" class="lvl-btn px-2 py-1 text-xs font-bold rounded-md bg-yellow-400 text-[#022C22] transition">S1</button>
+            <button onclick="setLevel('S2')" id="lvl-S2" class="lvl-btn px-2 py-1 text-xs font-semibold rounded-md text-emerald-200 hover:text-white transition">S2</button>
+            <button onclick="setLevel('S3')" id="lvl-S3" class="lvl-btn px-2 py-1 text-xs font-semibold rounded-md text-emerald-200 hover:text-white transition">S3</button>
+          </div>
+          <!-- Tombol Pengaturan API & Info -->
+          <button onclick="toggleSettingsModal()" title="Pengaturan Gemini API & Info" class="w-8 h-8 rounded-lg bg-[#047857] hover:bg-emerald-600 flex items-center justify-center text-emerald-100 transition">
+            <i class="fa-solid fa-gear text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- PEMILIH MODE BIMBINGAN VS SIMULASI SIDANG -->
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <button onclick="setMode('bimbingan')" id="mode-bimbingan" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-bold bg-emerald-50 text-[#064E3B] shadow-sm transition">
+          <i class="fa-solid fa-comments"></i> Mode Bimbingan
+        </button>
+        <button onclick="setMode('simulasi_sidang')" id="mode-simulasi_sidang" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[#047857] text-emerald-100 hover:bg-emerald-700 transition">
+          <i class="fa-solid fa-user-tie"></i> Simulasi Sidang
+        </button>
+      </div>
+    </header>
+
+    <!-- CHIP PERTANYAAN CEPAT (PROMPT STARTERS) -->
+    <div class="bg-white border-b border-gray-200 px-3 py-2 flex gap-2 overflow-x-auto whitespace-nowrap shrink-0">
+      <button onclick="quickAsk('Bagaimana cara menyusun research gap pada Bab 1 tentang penggunaan AI dalam penulisan akademik?')" class="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-medium hover:bg-emerald-100 transition">
+        ✨ Susun Research Gap Bab 1
+      </button>
+      <button onclick="quickAsk('Apa perbedaan metode penelitian kualitatif studi kasus dan fenomenologi untuk tesis?')" class="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-medium hover:bg-emerald-100 transition">
+        📊 Studi Kasus vs Fenomenologi
+      </button>
+      <button onclick="quickAsk('Berikan pertanyaan penguji sidang paling kritis untuk metode penelitian kuantitatif korelasional.')" class="text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full font-medium hover:bg-amber-100 transition">
+        🎓 Latihan Pertanyaan Sidang
+      </button>
+    </div>
+
+    <!-- AREA PERCAKAPAN (CHAT STREAM) -->
+    <main id="chatStream" class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Pesan Sambutan Awal -->
+      <div class="flex flex-col items-start max-w-[92%]">
+        <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-sm p-3.5 shadow-sm text-gray-800 text-[13.5px] leading-relaxed">
+          <p class="font-semibold text-[#064E3B] mb-1">Assalamualaikum & salam akademik 👋</p>
+          <p>Saya <strong>Dospemku AI</strong>. Silakan ketik pertanyaan atau tekan tombol <strong>Mikrofon</strong> di bawah untuk berkonsultasi secara lisan seputar judul, metodologi, maupun revisi bab penelitian Anda.</p>
+          <p class="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded-lg border border-gray-100">
+            <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i>
+            Setiap jawaban terhubung langsung ke basis data <strong>OpenAlex</strong> untuk menampilkan jurnal riil beserta tautan <strong>DOI</strong> dan sitasi <strong>APA 7th</strong>.
+          </p>
+        </div>
+        <span class="text-[10px] text-gray-400 mt-1 ml-1">Dospemku • Siap Membimbing</span>
+      </div>
+    </main>
+
+    <!-- INDIKATOR LOADING -->
+    <div id="loadingIndicator" class="hidden px-4 py-2 bg-emerald-50 border-t border-emerald-100 flex items-center gap-2.5">
+      <i class="fa-solid fa-circle-notch fa-spin text-emerald-600 text-sm"></i>
+      <span id="loadingText" class="text-xs font-medium text-emerald-800">Mencari jurnal DOI valid di OpenAlex...</span>
+    </div>
+
+    <!-- BILAH INPUT BAWAH (TEKS & MIKROFON SUARA) -->
+    <footer class="bg-white border-t border-gray-200 p-2.5 shrink-0">
+      <!-- Tampilan Normal -->
+      <div id="normalInputBar" class="flex items-end gap-2">
+        <button onclick="startVoiceRecognition()" title="Tanya Lisan via Mikrofon" class="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-microphone text-base"></i>
+        </button>
+        <textarea
+          id="userInput"
+          rows="1"
+          placeholder="Tulis pertanyaan skripsi atau tekan mikrofon..."
+          class="flex-1 bg-gray-100 text-gray-800 text-sm rounded-2xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none max-h-28"
+          onkeydown="handleKeyPress(event)"
+        ></textarea>
+        <button onclick="sendMessage()" class="w-11 h-11 rounded-full bg-[#064E3B] hover:bg-emerald-900 text-white flex items-center justify-center shrink-0 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-paper-plane text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Tampilan Saat Merekam Suara -->
+      <div id="voiceRecordingBar" class="hidden flex items-center justify-between bg-red-50 border border-red-200 rounded-2xl px-3.5 py-2">
+        <div class="flex items-center gap-2.5">
+          <div class="w-3 h-3 rounded-full bg-red-600 recording-pulse"></div>
+          <div>
+            <p class="text-xs font-bold text-red-800">Mendengarkan suara Anda...</p>
+            <p id="liveTranscriptPreview" class="text-[11px] text-red-600 italic truncate max-w-[180px]">Silakan berbicara...</p>
+          </div>
+        </div>
+        <button onclick="stopVoiceRecognition()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-stop"></i> Selesai & Kirim
+        </button>
+      </div>
+    </footer>
+
+    <!-- MODAL PENGATURAN GEMINI API KEY & DISCLAIMER AKADEMIK -->
+    <div id="settingsModal" class="hidden absolute inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl border border-gray-200">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+          <h2 class="font-bold text-gray-900 text-base flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-emerald-600"></i> Pengaturan Dospemku
+          </h2>
+          <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <div class="mt-4 space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Google Gemini API Key (Opsional)</label>
+            <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full text-xs bg-gray-50 border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-600" />
+            <p class="text-[11px] text-gray-500 mt-1">
+              Masukkan API Key dari <a href="https://aistudio.google.com" target="_blank" class="text-emerald-700 underline font-semibold">Google AI Studio</a> untuk mengaktifkan penalaran penuh <strong>Gemini 2.5 Flash</strong>. Kunci disimpan lokal di browser Anda.
+            </p>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-900 leading-relaxed">
+            <p class="font-bold mb-0.5"><i class="fa-solid fa-scale-balanced mr-1"></i> Penafian Integritas Akademik:</p>
+            Dospemku adalah asisten metodologi dan pencari referensi ilmiah berbasis AI, <strong>bukan</strong> layanan jasa pembuatan karya ilmiah otomatis. Keputusan akhir tetap berada pada Dosen Pembimbing resmi Anda.
+          </div>
+        </div>
+
+        <div class="mt-5 flex gap-2">
+          <button onclick="saveApiKey()" class="flex-1 bg-[#064E3B] hover:bg-emerald-800 text-white text-xs font-bold py-2.5 rounded-xl transition">
+            Simpan Pengaturan
+          </button>
+          <button onclick="clearChatHistory()" class="px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl transition">
+            Reset Chat
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFIKASI -->
+    <div id="toast" class="hidden absolute bottom-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg z-50 whitespace-nowrap">
+      Sitasi APA 7th berhasil disalin!
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // STATE APLIKASI
+    // ==========================================
+    let currentLevel = 'S1';
+    let currentMode = 'bimbingan';
+    let geminiApiKey = localStorage.getItem('dospemku_gemini_key') || '';
+    let recognition = null;
+    let finalVoiceTranscript = '';
+
+    // Inisialisasi UI saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      if (geminiApiKey) {
+        document.getElementById('apiKeyInput').value = geminiApiKey;
+        updateEngineBadge(true);
+      }
+    });
+
+    function updateEngineBadge(hasGemini) {
+      const badge = document.getElementById('engineBadge');
+      if (hasGemini) {
+        badge.textContent = 'Gemini 2.5 + OpenAlex';
+        badge.className = 'text-[10px] bg-yellow-400 text-[#022C22] px-1.5 py-0.5 rounded font-bold';
+      } else {
+        badge.textContent = 'Live OpenAlex';
+        badge.className = 'text-[10px] bg-emerald-800 text-emerald-200 px-1.5 py-0.5 rounded font-semibold border border-emerald-600';
+      }
+    }
+
+    function setLevel(lvl) {
+      currentLevel = lvl;
+      ['S1', 'S2', 'S3'].forEach(item => {
+        const btn = document.getElementById(`lvl-${item}`);
+        if (item === lvl) {
+          btn.className = 'lvl-btn px-2 py-1 text-xs font-bold rounded-md bg-yellow-400 text-[#022C22] transition';
+        } else {
+          btn.className = 'lvl-btn px-2 py-1 text-xs font-semibold rounded-md text-emerald-200 hover:text-white transition';
+        }
+      });
+      showToast(`Jenjang disesuaikan ke ${lvl}`);
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const btnBimbingan = document.getElementById('mode-bimbingan');
+      const btnSidang = document.getElementById('mode-simulasi_sidang');
+
+      if (mode === 'bimbingan') {
+        btnBimbingan.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-bold bg-emerald-50 text-[#064E3B] shadow-sm transition';
+        btnSidang.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[#047857] text-emerald-100 hover:bg-emerald-700 transition';
+        showToast('Mode Bimbingan Suportif Aktif');
+      } else {
+        btnBimbingan.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold bg-[#047857] text-emerald-100 hover:bg-emerald-700 transition';
+        btnSidang.className = 'flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-bold bg-red-600 text-white shadow-sm transition';
+        showToast('Mode Penguji Sidang Kritis Aktif');
+      }
+    }
+
+    function toggleSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function saveApiKey() {
+      const val = document.getElementById('apiKeyInput').value.trim();
+      geminiApiKey = val;
+      if (val) {
+        localStorage.setItem('dospemku_gemini_key', val);
+        updateEngineBadge(true);
+        showToast('Gemini API Key tersimpan!');
+      } else {
+        localStorage.removeItem('dospemku_gemini_key');
+        updateEngineBadge(false);
+        showToast('Mode OpenAlex Standar aktif');
+      }
+      toggleSettingsModal();
+    }
+
+    function clearChatHistory() {
+      const stream = document.getElementById('chatStream');
+      stream.innerHTML = '';
+      toggleSettingsModal();
+      showToast('Riwayat percakapan dibersihkan');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2600);
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function quickAsk(text) {
+      document.getElementById('userInput').value = text;
+      sendMessage();
+    }
+
+    // ==========================================
+    // PENGENALAN SUARA NATIVE BROWSER (SPEECH API)
+    // ==========================================
+    function startVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Browser Anda tidak mendukung pengenalan suara langsung. Silakan gunakan Google Chrome atau Safari terbaru, atau ketik pertanyaan Anda.');
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      finalVoiceTranscript = '';
+
+      recognition.onstart = () => {
+        document.getElementById('normalInputBar').classList.add('hidden');
+        document.getElementById('voiceRecordingBar').classList.remove('hidden');
+        document.getElementById('liveTranscriptPreview').textContent = 'Silakan berbicara...';
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalVoiceTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        const display = (finalVoiceTranscript + interim).trim();
+        if (display) {
+          document.getElementById('liveTranscriptPreview').textContent = display;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        stopVoiceUI();
+        if (event.error !== 'no-speech') {
+          showToast('Izin mikrofon ditolak atau terjadi gangguan suara.');
+        }
+      };
+
+      recognition.start();
+    }
+
+    function stopVoiceRecognition() {
+      if (recognition) {
+        recognition.stop();
+      }
+      stopVoiceUI();
+      setTimeout(() => {
+        const spokenText = (finalVoiceTranscript || document.getElementById('liveTranscriptPreview').textContent).trim();
+        if (spokenText && spokenText !== 'Silakan berbicara...') {
+          processUserQuery(spokenText, true);
+        } else {
+          showToast('Tidak ada suara yang terdeteksi.');
+        }
+      }, 300);
+    }
+
+    function stopVoiceUI() {
+      document.getElementById('voiceRecordingBar').classList.add('hidden');
+      document.getElementById('normalInputBar').classList.remove('hidden');
+    }
+
+    // ==========================================
+    // PENCARIAN JURNAL VALID VIA OPENALEX API
+    // ==========================================
+    function extractSearchKeywords(indonesianQuery) {
+      // Pemetaan istilah metodologi Indonesia -> Inggris untuk akurasi pencarian OpenAlex
+      const dictionary = {
+        'skripsi': 'undergraduate thesis',
+        'tesis': 'master thesis',
+        'disertasi': 'doctoral dissertation',
+        'umpan balik': 'supervisory feedback',
+        'dosen pembimbing': 'thesis supervision',
+        'kualitatif': 'qualitative research',
+        'kuantitatif': 'quantitative research',
+        'studi kasus': 'case study',
+        'fenomenologi': 'phenomenology',
+        'korelasional': 'correlational study',
+        'eksperimen': 'experimental design',
+        'kecerdasan buatan': 'artificial intelligence',
+        'penulisan': 'academic writing',
+        'literasi digital': 'digital literacy',
+        'motivasi belajar': 'learning motivation',
+        'hasil belajar': 'learning outcomes',
+        'kurikulum': 'curriculum',
+        'pengembangan': 'research and development',
+        'validitas': 'validity reliability',
+        'sidang': 'thesis defense'
+      };
+
+      let queryLower = indonesianQuery.toLowerCase();
+      let matchedTerms = [];
+
+      for (const [idTerm, enTerm] of Object.entries(dictionary)) {
+        if (queryLower.includes(idTerm)) {
+          matchedTerms.push(enTerm);
+        }
+      }
+
+      if (matchedTerms.length >= 2) {
+        return matchedTerms.slice(0, 4).join(' ');
+      }
+
+      // Hapus stop-words bahasa Indonesia jika tidak cocok kamus
+      const stopWords = ['pak', 'bu', 'saya', 'ingin', 'bagaimana', 'cara', 'apa', 'yang', 'untuk', 'pada', 'tentang', 'dari', 'dengan', 'dan', 'atau', 'ini', 'itu', 'tolong', 'jelaskan', 'berikan', 'bab'];
+      const cleaned = queryLower
+        .replace(/[^\w\s]/g, '')
+        .split(/\s+/)
+        .filter(w => w.length > 3 && !stopWords.includes(w))
+        .slice(0, 4)
+        .join(' ');
+
+      return cleaned || 'academic research methodology thesis';
+    }
+
+    async function fetchVerifiedReferences(query) {
+      const keywords = extractSearchKeywords(query);
+      const url = `https://api.openalex.org/works?search=${encodeURIComponent(keywords)}&filter=has_doi:true,type:article&per-page=3&sort=relevance_score:desc`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.results || []).map(item => {
+          const authorsList = (item.authorships || []).slice(0, 3).map(a => a.author?.display_name).filter(Boolean);
+          const authorFormatted = authorsList.length === 0 ? 'Anonim'
+            : authorsList.length === 1 ? authorsList[0]
+            : authorsList.length === 2 ? `${authorsList[0]} & ${authorsList[1]}`
+            : `${authorsList[0]} et al.`;
+
+          const year = item.publication_year || 'n.d.';
+          const title = item.title || 'Untitled Article';
+          const venue = item.primary_location?.source?.display_name || 'Peer-Reviewed Journal';
+          const doi = item.doi || '';
+
+          return {
+            title,
+            authors: authorFormatted,
+            year,
+            venue,
+            doi,
+            apa7: `${authorFormatted} (${year}). ${title}. *${venue}*. ${doi}`
+          };
+        });
+      } catch (err) {
+        console.error('OpenAlex fetch error:', err);
+        return [];
+      }
+    }
+
+    // ==========================================
+    // GENERATOR JAWABAN AI (GEMINI API / FALLBACK)
+    // ==========================================
+    async function generateAdvisorAnswer(question, references) {
+      const refsBlock = references.length > 0
+        ? references.map((r, i) => `[${i + 1}] ${r.authors} (${r.year}). "${r.title}". ${r.venue}. DOI: ${r.doi}`).join('\n')
+        : 'Tidak ada referensi eksternal spesifik yang ditemukan.';
+
+      // Jika pengguna memasukkan Gemini API Key sendiri, panggil Gemini 2.5 Flash langsung
+      if (geminiApiKey) {
+        try {
+          const systemPrompt = `Anda adalah Dospemku, dosen pembimbing akademik senior di Indonesia untuk jenjang ${currentLevel}.
+Mode saat ini: ${currentMode === 'bimbingan' ? 'Bimbingan Suportif & Solutif' : 'Ketua Penguji Sidang Kritis (akhiri dengan 2 pertanyaan penguji tajam)'}.
+ATURAN SITASI: Hanya kutip referensi yang ada di daftar [REFERENSI VALID] di bawah ini dengan format [1], [2]. Dilarang mengarang referensi baru. Gunakan bahasa Indonesia akademik yang terstruktur rapi.`;
+
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{
+                parts: [{
+                  text: `Pertanyaan Mahasiswa (${currentLevel}): ${question}\n\n[REFERENSI VALID]:\n${refsBlock}`
+                }]
+              }]
+            })
+          });
+
+          const data = await response.json();
+          const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (aiText) return aiText;
+        } catch (e) {
+          console.warn('Fallback ke mesin metodologi lokal:', e);
+        }
+      }
+
+      // Mesin Sintesis Metodologi Bawaan (Berjalan instan tanpa API Key)
+      const refIntro = references.length > 0
+        ? `Berdasarkan penelusuran literatur bereputasi pada basis data OpenAlex, temuan dari <strong>${references[0].authors} (${references[0].year})</strong> [1]${references[1] ? ` serta <strong>${references[1].authors} (${references[1].year})</strong> [2]` : ''} memberikan landasan empiris yang relevan untuk memperkuat argumen ${currentLevel} Anda.`
+        : `Pastikan setiap klaim teoretis yang Anda bangun didukung oleh minimal 3–5 artikel jurnal bereputasi terbitan 5 tahun terakhir.`;
+
+      if (currentMode === 'simulasi_sidang') {
+        return `<strong>[Evaluasi Dewan Penguji — Jenjang ${currentLevel}]</strong><br><br>
+        Argumen yang Anda ajukan cukup menarik, namun sebagai penguji saya melihat perlunya penajaman pada aspek <em>justifikasi metodologis</em> dan kebaruan (<em>novelty</em>). ${refIntro}<br><br>
+        <strong>Pertanyaan Penguji untuk Anda Jawab:</strong><br>
+        1. Mengapa pendekatan atau variabel yang Anda pilih lebih unggul dibandingkan penelitian terdahulu [1] dalam konteks objek penelitian Anda?<br>
+        2. Bagaimana langkah konkret Anda mengendalikan bias instrumen agar temuan penelitian ini memiliki validitas dan reliabilitas yang dapat dipertanggungjawabkan?`;
+      }
+
+      return `<strong>[Arahan Bimbingan — Jenjang ${currentLevel}]</strong><br><br>
+      Untuk menjawab persoalan tersebut secara sistematis, mari kita pecah menjadi tiga langkah konkret:<br><br>
+      <strong>1. Penajaman Fokus & Celah Penelitian (Research Gap)</strong><br>
+      Mulailah dengan memetakan fenomena empiris di lapangan, lalu bandingkan dengan temuan riset sebelumnya. ${refIntro}<br><br>
+      <strong>2. Konsistensi Metodologi (${currentLevel})</strong><br>
+      Pastikan rumusan masalah, teknik pengumpulan data, dan teknik analisis Anda selaras secara horizontal. Hindari mencampuradukkan istilah paradigma tanpa rujukan metodologis yang jelas.<br><br>
+      <strong>3. Langkah Tindak Lanjut</strong><br>
+      Silakan unduh atau salin sitasi jurnal terverifikasi di bawah ini untuk dimasukkan ke dalam draf bab Anda, lalu kirimkan kembali paragraf revisinya untuk kita bedah bersama.`;
+    }
+
+    // ==========================================
+    // ALUR KIRIM & RENDER UI PERCAKAPAN
+    // ==========================================
+    async function sendMessage() {
+      const inputEl = document.getElementById('userInput');
+      const text = inputEl.value.trim();
+      if (!text) return;
+      inputEl.value = '';
+      await processUserQuery(text, false);
+    }
+
+    async function processUserQuery(questionText, isVoice) {
+      appendUserMessage(questionText, isVoice);
+
+      const loader = document.getElementById('loadingIndicator');
+      const loaderText = document.getElementById('loadingText');
+      loader.classList.remove('hidden');
+      loaderText.textContent = 'Mencari jurnal DOI valid di OpenAlex...';
+
+      // 1. Ambil jurnal valid secara real-time dari OpenAlex
+      const references = await fetchVerifiedReferences(questionText);
+
+      loaderText.textContent = geminiApiKey
+        ? 'Gemini 2.5 Flash menyusun arahan bimbingan...'
+        : 'Menyusun arahan metodologi & format sitasi APA 7th...';
+
+      // 2. Hasilkan jawaban bimbingan
+      const answerHtml = await generateAdvisorAnswer(questionText, references);
+
+      loader.classList.add('hidden');
+      appendAiMessage(answerHtml, references);
+    }
+
+    function getTimeNow() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    function formatMarkdownBasic(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function appendUserMessage(text, isVoice) {
+      const stream = document.getElementById('chatStream');
+      const voiceBadge = isVoice
+        ? `<span class="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold mb-1"><i class="fa-solid fa-microphone"></i> Transkripsi Lisan</span>`
+        : '';
+
+      const html = `
+        <div class="flex flex-col items-end ml-auto max-w-[85%]">
+          ${voiceBadge}
+          <div class="bg-[#059669] text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 shadow-sm text-[13.5px] leading-relaxed">
+            ${escapeHtml(text)}
+          </div>
+          <span class="text-[10px] text-gray-400 mt-1 mr-1">${getTimeNow()}</span>
+        </div>
+      `;
+      stream.insertAdjacentHTML('beforeend', html);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    function appendAiMessage(answerText, references) {
+      const stream = document.getElementById('chatStream');
+      const formattedBody = formatMarkdownBasic(answerText);
+
+      let refsHtml = '';
+      if (references.length > 0) {
+        const cards = references.map((ref, idx) => {
+          const safeApa = ref.apa7.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          return `
+            <div class="bg-white border border-gray-200 border-l-4 border-l-emerald-500 rounded-xl p-3 shadow-2xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">OpenAlex • [${idx + 1}]</span>
+                <span class="text-[11px] font-bold text-gray-500">${ref.year}</span>
+              </div>
+              <h4 class="text-xs font-bold text-gray-900 leading-snug mb-1">${escapeHtml(ref.title)}</h4>
+              <p class="text-[11px] text-gray-600 mb-2">${escapeHtml(ref.authors)} — <em class="text-gray-500">${escapeHtml(ref.venue)}</em></p>
+              <div class="flex gap-2">
+                <a href="${ref.doi}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 border border-emerald-600 px-2.5 py-1 rounded-lg hover:bg-emerald-50 transition">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Buka DOI
+                </a>
+                <button onclick="copyApaCitation('${safeApa}')" class="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg transition">
+                  <i class="fa-regular fa-copy text-[10px]"></i> Salin APA 7th
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        refsHtml = `
+          <div class="mt-2.5 w-full space-y-2">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-[#064E3B]">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              <span>Referensi Jurnal Terverifikasi (${references.length})</span>
+            </div>
+            ${cards}
+          </div>
+        `;
+      }
+
+      const wrapper = `
+        <div class="flex flex-col items-start max-w-[94%]">
+          <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-sm p-3.5 shadow-sm text-gray-800 text-[13.5px] leading-relaxed w-full">
+            ${formattedBody}
+          </div>
+          ${refsHtml}
+          <span class="text-[10px] text-gray-400 mt-1 ml-1">Dospemku AI • ${getTimeNow()}</span>
+        </div>
+      `;
+
+      stream.insertAdjacentHTML('beforeend', wrapper);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    function copyApaCitation(apaText) {
+      navigator.clipboard.writeText(apaText).then(() => {
+        showToast('Sitasi APA 7th berhasil disalin!');
+      });
+    }
+  </script>
+</body>
+</html>
